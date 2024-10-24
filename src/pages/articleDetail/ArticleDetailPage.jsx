@@ -4,6 +4,7 @@ import BreadCrumbs from "../../components/BreadCrumbs";
 import MainLayout from "../../components/MainLayout";
 import { images } from "../../constants";
 import SuggestedPosts from "./container/SuggestedPosts";
+import CommentsContainer from "../../components/comments/CommentsContainer";
 const breadCrumbsData = [
   { name: "Home", link: "/" },
   { name: "Blog", link: "/blog" },
@@ -69,6 +70,7 @@ const ArticleDetailPage = () => {
 We believe that every child deserves access to quality education. By providing the necessary resources and support, we can help children build a brighter future. Education empowers them to reach their full potential and become productive members of society. Together, we can make a difference in their lives by ensuring they have the tools they need to succeed.
             </p>
           </div>
+          <CommentsContainer className="mt-10" logginedUserId="a" />
         </article>
         <SuggestedPosts
           header="Latest Article"
