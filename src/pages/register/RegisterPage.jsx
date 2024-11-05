@@ -1,23 +1,41 @@
-import React from "react";
+/* eslint-disable no-undef */
+
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
-import MainLayout from "../../components/MainLayout";
-import toast from "react-hot-toast";
-import { signup } from "../../services/index/users";
+import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+
+import MainLayout from "../../components/MainLayout";
+import { signup } from "../../services/index/users";
+import { userActions } from "../../store/reducers/userReducers";
+
 const RegisterPage = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userState = useSelector((state) => state.user || {}); // Add fallback
   const { mutate, isLoading } = useMutation({
     mutationFn: ({ name, email, password }) => {
       return signup({ name, email, password });
     },
     onSuccess: (data) => {
-      console.log(data);
+      dispatch(userActions.setUserInfo(data));
+      toast.success("Registration successful!"); // Show success message
+      localStorage.setItem("account", JSON.stringify(data));
+      navigate("/");
     },
     onError: (error) => {
-      toast.error(error.message)
+      toast.error(error.message);
       console.log(error);
     },
   });
+
+  useEffect(() => {
+    if (userState.userInfo) {
+      navigate("/");
+    }
+  }, [navigate, userState.userInfo]);
   const {
     register,
     handleSubmit,
@@ -32,23 +50,26 @@ const RegisterPage = () => {
     },
     mode: "onChange",
   });
+
   const submitHandler = (data) => {
     const { name, email, password } = data;
     mutate({ name, email, password });
   };
+
   const password = watch("password");
+
   return (
     <MainLayout>
       <section className="container mx-auto px-5 py-10">
         <div className="w-full max-w-sm mx-auto">
-          <h1 className="font-roboto text-6xl font-extrabold text-center text-dark-hard mb-8">
+          <h1 className="font-roboto text-2xl font-bold text-center text-dark-hard mb-8">
             Sign Up
           </h1>
           <form onSubmit={handleSubmit(submitHandler)}>
             <div className="flex flex-col mb-6 w-full">
               <label
                 htmlFor="name"
-                className="text-[#424648] font-semibold block"
+                className="text-[#5a7184] font-semibold block"
               >
                 Name
               </label>
@@ -79,7 +100,7 @@ const RegisterPage = () => {
             <div className="flex flex-col mb-6 w-full">
               <label
                 htmlFor="email"
-                className="text-[#424648] font-semibold block"
+                className="text-[#5a7184] font-semibold block"
               >
                 Email
               </label>
@@ -111,7 +132,7 @@ const RegisterPage = () => {
             <div className="flex flex-col mb-6 w-full">
               <label
                 htmlFor="password"
-                className="text-[#424648] font-semibold block"
+                className="text-[#5a7184] font-semibold block"
               >
                 Password
               </label>
@@ -142,7 +163,7 @@ const RegisterPage = () => {
             <div className="flex flex-col mb-6 w-full">
               <label
                 htmlFor="confirmPassword"
-                className="text-[#424648] font-semibold block"
+                className="text-[#5a7184] font-semibold block"
               >
                 Confirm Password
               </label>
@@ -184,7 +205,7 @@ const RegisterPage = () => {
             >
               Register
             </button>
-            <p className="text-sm font-semibold text-[#424648]">
+            <p className="text-sm font-semibold text-[#5a7184]">
               You have an account?{" "}
               <Link to="/login" className="text-primary">
                 Login now
@@ -196,4 +217,5 @@ const RegisterPage = () => {
     </MainLayout>
   );
 };
+
 export default RegisterPage;
