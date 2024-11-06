@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/users"; // Define the base URL for the server
+const API_URL = "http://localhost:5000"; 
 
 export const signup = async ({ name, email, password }) => {
   try {
-    const { data } = await axios.post(`${API_URL}/register`, {
+    const { data } = await axios.post(`${API_URL}/api/users/register`, {
       name,
       email,
       password,
@@ -14,6 +14,19 @@ export const signup = async ({ name, email, password }) => {
     if (error.response && error.response.data.message) {
       throw new Error(error.response.data.message);
     }
+    throw new Error(error.message);
+  }
+};
+export const login = async ({ email, password }) => {
+  try {
+    const { data } = await axios.post(`${API_URL}/api/users/login`, {
+      email,
+      password,
+    });
+    return data;
+  } catch (error) {
+    if (error.response && error.response.data.message)
+      throw new Error(error.response.data.message);
     throw new Error(error.message);
   }
 };
