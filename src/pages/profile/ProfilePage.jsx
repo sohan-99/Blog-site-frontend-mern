@@ -3,13 +3,16 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import MainLayout from "../../components/MainLayout";
 import ProfilePicture from "../../components/ProfilePicture";
-import { getUserProfile } from "../../services/index/users";
+import { getUserProfile, updateProfile } from "../../services/index/users";
+import toast from "react-hot-toast";
+import { userActions } from "../../store/reducers/userReducers";
 const ProfilePage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const userState = useSelector((state) => state.user);
   const {
     data: profileData,
@@ -20,6 +23,24 @@ const ProfilePage = () => {
       return getUserProfile({ token: userState.userInfo.token });
     },
     queryKey: ["profile"],
+  });
+  const { mutate, isLoading } = useMutation({
+    mutationFn: ({ name, email, password }) => {
+      return updateProfile({
+        token: userState.userInfo.token,
+        userData: { name, email, password },
+      });
+    },
+    onSuccess: (data) => {
+      dispatch(userActions.setUserInfo(data));
+      localStorage.setItem("account", JSON.stringify(data));
+      queryClient.invalidateQueries(["profile"]);
+      toast.success("Profile is updated");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      console.log(error);
+    },
   });
   useEffect(() => {
     if (!userState.userInfo) {
@@ -42,12 +63,15 @@ const ProfilePage = () => {
     },
     mode: "onChange",
   });
-  const submitHandler = (data) => {};
-  // console.log(profileData);
+  const submitHandler = (data) => {
+    const { name, email, password } = data;
+    mutate({ name, email, password });
+  };
   return (
     <MainLayout>
       <section className="container mx-auto px-5 py-10">
         <div className="w-full max-w-sm mx-auto">
+        <p>{profileData?.name}</p>
           <ProfilePicture avatar={profileData?.avatar} />
           <form onSubmit={handleSubmit(submitHandler)}>
             <div className="flex flex-col mb-6 w-full">
