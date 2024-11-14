@@ -1,13 +1,32 @@
 import React from "react";
 import ArticleCard from "../../../components/ArticleCard";
 import { FaArrowRight } from "react-icons/fa";
+import { useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { getAllPosts } from "../../../services/index/posts";
 const Articles = () => {
+  const { data, isLoading, isError } = useQuery({
+    queryFn: () => getAllPosts(),
+    queryKey: ["posts"],
+    onError: (error) => {
+      toast.error(error.message);
+      console.log(error);
+    },
+  });
+  console.log(data);
  
   return (
     <section className="flex flex-col container mx-auto px-5 py-10">
       <div className="flex flex-wrap md:gap-x-5 gap-y-5 pb-10">
-      <ArticleCard className="w-full md:w-[calc(50%-20px)] lg:w-[calc(33.33%-21px)]" />
-      <ArticleCard className="w-full md:w-[calc(50%-20px)] lg:w-[calc(33.33%-21px)]" />
+      {!isLoading &&
+          !isError &&
+          data.map((post) => (
+            <ArticleCard
+              key={post._id}
+              post={post}
+              className="w-full md:w-[calc(50%-20px)] lg:w-[calc(33.33%-21px)]"
+            />
+          ))}
       </div>
       <button
         to="/blog"
