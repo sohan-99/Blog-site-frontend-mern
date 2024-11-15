@@ -15,6 +15,8 @@ import { images, stables } from "../../constants";
 import SuggestedPosts from "./container/SuggestedPosts";
 import { useQuery } from "@tanstack/react-query";
 import { getSinglePost } from "../../services/index/posts";
+import ErrorMessage from "../../components/ErrorMessage";
+import ArticleDetailSkeleton from "../../components/ArticleCardSkeleton";
 
 const postsData = [
   {
@@ -57,7 +59,7 @@ const ArticleDetailPage = () => {
   const { slug } = useParams();
   const [breadCrumbsData, setbreadCrumbsData] = useState([]);
   const [body, setBody] = useState(null);
-  const { data } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryFn: () => getSinglePost({ slug }),
     queryKey: ["blog", slug],
     onSuccess: (data) => {
@@ -75,6 +77,11 @@ const ArticleDetailPage = () => {
   });
   return (
     <MainLayout>
+    {isLoading ? (
+      <ArticleDetailSkeleton />
+    ) : isError ? (
+      <ErrorMessage message="Couldn't fetch the post detail" />
+    ) : (
       <section className="container mx-auto max-w-5xl flex flex-col px-5 py-5 lg:flex-row lg:gap-x-5 lg:items-start">
         <article className="flex-1">
           <BreadCrumbs data={breadCrumbsData} />
@@ -125,8 +132,9 @@ const ArticleDetailPage = () => {
           </div>
         </div>
       </section>
-    </MainLayout>
-  );
+    )}
+  </MainLayout>
+);
 };
 
 export default ArticleDetailPage;
