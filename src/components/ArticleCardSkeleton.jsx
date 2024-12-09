@@ -28,4 +28,5 @@ const ArticleCardSkeleton = ({ className }) => {
     </div>
   );
 };
+
 export default ArticleCardSkeleton;
